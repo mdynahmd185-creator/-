@@ -1,0 +1,35 @@
+
+name: Extract APK Project
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Extract project files
+        run: |
+          mkdir extracted
+          unzip -q tasbeeh-al-kawn-apk-project.zip -d extracted
+          cp -R extracted/tasbeeh-apk-project/. .
+          rm -rf extracted
+          rm -f tasbeeh-al-kawn-apk-project.zip
+
+      - name: Save extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Extract Android APK project"
+            git push
+          fi
